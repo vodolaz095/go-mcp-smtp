@@ -27,9 +27,10 @@ build: deps
 
 tools:
 	which go
-	which govulncheck
-	which golint
-	which staticcheck
+	which govulncheck # go install golang.org/x/vuln/cmd/govulncheck@latest
+	which golint # go install golang.org/x/lint/golint@latest
+	which staticcheck # go install honnef.co/go/tools/cmd/staticcheck@latest
+	which tparse # go install github.com/mfridman/tparse@latest
 
 # https://go.dev/blog/govulncheck
 # install it by go install golang.org/x/vuln/cmd/govulncheck@latest
