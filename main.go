@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"log"
 
@@ -64,7 +65,27 @@ func main() {
 		Description: "MCP server to send email messages via SMTP submission server",
 		Version:     Version,
 		WebsiteURL:  "https://github.com/vodolaz095/go-mcp-smtp",
-	}, nil)
+	}, &mcp.ServerOptions{
+		InitializedHandler: func(ctx context.Context, _ *mcp.InitializedRequest) {
+			errPinging := transport.Ping(ctx)
+			if errPinging != nil {
+				log.Fatalf("error checking connection for smtp server: %s", errPinging)
+				return
+			}
+		},
+		Capabilities: &mcp.ServerCapabilities{
+			Prompts: &mcp.PromptCapabilities{
+				ListChanged: true,
+			},
+			Tools: &mcp.ToolCapabilities{
+				ListChanged: true,
+			},
+			Resources: &mcp.ResourceCapabilities{
+				ListChanged: true,
+				Subscribe:   true,
+			},
+		},
+	})
 
 	mcp.AddTool(server, &mcp.Tool{
 		Name:        "sendRawEmail",
@@ -77,6 +98,7 @@ func main() {
 		Description: "ensure smtp submission server is functional",
 	}, srv.Ping)
 
+	log.Printf("Starting MCP...")
 	err = server.Run(ctx, &mcp.StdioTransport{})
 	if err != nil {
 		log.Fatal(err)
