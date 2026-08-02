@@ -41,70 +41,36 @@ func (c *Client) makeBody(tos []*mail.Address, subject, body string) []byte {
 	return buh.Bytes()
 }
 
-func (c *Client) Send(ctx context.Context, recipients, subject, body string) error {
-	tos, err := mail.ParseAddressList(recipients)
-	if err != nil {
-		return fmt.Errorf("error parsing recipients %s : %w", recipients, err)
-	}
-	if len(tos) == 0 {
-		return fmt.Errorf("empty list of recipients")
-	}
-
+func (c *Client) makeConnection(ctx context.Context) (client *smtp.Client, err error) {
 	var myDialer net.Dialer
 
 	con, err := myDialer.DialContext(ctx, c.Network, c.Address)
 	if err != nil {
-		return fmt.Errorf("error dialing %s %s: %w", c.Network, c.Address, err)
+		return nil, fmt.Errorf("error dialing %s %s: %w", c.Network, c.Address, err)
 	}
-	client, err := smtp.NewClient(con, c.Host)
+	client, err = smtp.NewClient(con, c.Host)
 	if err != nil {
-		return fmt.Errorf("error starting smtp client for %s %s: %w", c.Network, c.Address, err)
+		return nil, fmt.Errorf("error starting smtp client for %s %s: %w", c.Network, c.Address, err)
 	}
-	defer client.Close()
 	err = client.Hello(c.Helo)
 	if err != nil {
-		return fmt.Errorf("error sending helo for %s %s: %w", c.Network, c.Address, err)
+		return nil, fmt.Errorf("error sending helo for %s %s: %w", c.Network, c.Address, err)
 	}
 	if c.StartTLS {
 		err = client.StartTLS(&tls.Config{ServerName: c.Host})
 		if err != nil {
-			return fmt.Errorf("error starting tls for %s %s: %w", c.Network, c.Address, err)
+			return nil, fmt.Errorf("error starting tls for %s %s: %w", c.Network, c.Address, err)
 		}
 	}
 	if c.Username != "" && c.Password != "" {
 		err = client.Auth(smtp.PlainAuth("", c.Username, c.Password, c.Host))
 		if err != nil {
-			return fmt.Errorf("error authenticating for %s %s as %s: %w", c.Network, c.Address, c.Username, err)
+			return nil, fmt.Errorf("error authenticating for %s %s as %s: %w", c.Network, c.Address, c.Username, err)
 		}
 	}
 	err = client.Mail(c.From)
 	if err != nil {
-		return fmt.Errorf("error setting MAIL FROM for %s %s as %s: %w", c.Network, c.Address, c.From, err)
+		return nil, fmt.Errorf("error setting MAIL FROM for %s %s as %s: %w", c.Network, c.Address, c.From, err)
 	}
-	for i := range tos {
-		err = client.Rcpt(tos[i].Address)
-		if err != nil {
-			return fmt.Errorf("error setting RCPT TO for %s %s as %s: %w", c.Network, c.Address, c.From, err)
-		}
-	}
-	wc, err := client.Data()
-	if err != nil {
-		return fmt.Errorf("error executing DATA for %s %s: %w", c.Network, c.Address, err)
-	}
-	_, err = wc.Write(c.makeBody(tos, subject, body))
-	if err != nil {
-		return fmt.Errorf("error sending email body for %s %s: %w", c.Network, c.Address, err)
-	}
-
-	err = wc.Close()
-	if err != nil {
-		return fmt.Errorf("error closing email body for %s %s: %w", c.Network, c.Address, err)
-	}
-
-	err = client.Quit()
-	if err != nil {
-		return fmt.Errorf("error quiting for %s %s: %w", c.Network, c.Address, err)
-	}
-
-	return nil
+	return client, nil
 }

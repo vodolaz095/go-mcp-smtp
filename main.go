@@ -16,7 +16,8 @@ var (
 	startTLS                                         bool
 	from                                             string
 
-	Version string
+	Version    string
+	Subversion string
 )
 
 func main() {
@@ -25,9 +26,10 @@ func main() {
 
 	flag.StringVar(&network, "network", "tcp", "how to dial smtp server, can be tcp,tcp4,tcp6,unix")
 	flag.StringVar(&address, "address", "localhost:587", "smtp submission server connection string")
+	flag.StringVar(&host, "host", "localhost", "tls server name to use in TLS negotiation")
 	flag.StringVar(&helo, "helo", "localhost", "smtp submission server connection string, protocol can be smtp or smtps")
 	flag.StringVar(&username, "username", "", "username to use for authentication - can be blank")
-	flag.StringVar(&password, "username", "", "username to use for authentication - can be blank")
+	flag.StringVar(&password, "password", "", "password to use for authentication - can be blank")
 	flag.StringVar(&from, "from", "mcp@localhost", "FROM header for email messages")
 	flag.BoolVar(&startTLS, "start_tls", true, "start tls if possible")
 	flag.Parse()
@@ -43,11 +45,25 @@ func main() {
 		From:     from,
 	}
 
+	err := transport.Ping(ctx)
+	if err != nil {
+		log.Fatalf("error checking connection for smtp server: %s", err)
+		return
+	}
+	log.Printf("SMTP server %s is cooperating...", address)
 	srv := commands.MCP{Sender: &transport}
 
-	server := mcp.NewServer(&mcp.Implementation{Name: "go-mcp-smtp", Version: Version}, nil)
-	mcp.AddTool(server, &mcp.Tool{Name: "sendRawEail", Description: "send raw email message"}, srv.SendRawEmail)
-	if err := server.Run(ctx, &mcp.StdioTransport{}); err != nil {
+	server := mcp.NewServer(&mcp.Implementation{Name: "go-mcp-smtp",
+		Title:       "go-mcp-smtp",
+		Description: "MCP server to send email messages via SMTP submission server",
+		Version:     Version,
+		WebsiteURL:  "https://github.com/vodolaz095/go-mcp-smtp",
+	}, nil)
+
+	mcp.AddTool(server, &mcp.Tool{Name: "sendRawEmail", Description: "send raw email message"}, srv.SendRawEmail)
+	mcp.AddTool(server, &mcp.Tool{Name: "ping", Description: "ensure smtp submission server is functional"}, srv.Ping)
+	err = server.Run(ctx, &mcp.StdioTransport{})
+	if err != nil {
 		log.Fatal(err)
 	}
 }
