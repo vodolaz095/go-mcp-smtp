@@ -71,3 +71,198 @@ Crush config example
 }
 
 ```
+
+Claude Code (Anthropic) config example
+===============================
+Put this into `~/.claude/mcp.json` or `~/.claude/mcp.json`:
+
+```json
+
+{
+  "mcpServers": {
+    "smtp": {
+      "command": "go-mcp-smtp",
+      "args": [
+        "--network=tcp",
+        "--address=smtp.example.org:587",
+        "--host=smtp.example.org",
+        "--helo=localhost",
+        "--username=username",
+        "--password=password",
+        "--from=bot@example.org",
+        "--start_tls=true"
+      ],
+      "env": {}
+    }
+  }
+}
+
+```
+
+Aider config example
+==============================
+Put this into `.aider.mcp.json`:
+
+```json
+
+{
+  "mcpServers": {
+    "smtp": {
+      "command": "go-mcp-smtp",
+      "args": [
+        "--network=tcp",
+        "--address=smtp.example.org:587",
+        "--host=smtp.example.org",
+        "--helo=localhost",
+        "--username=username",
+        "--password=password",
+        "--from=bot@example.org",
+        "--start_tls=true"
+      ],
+      "env": {}
+    }
+  }
+}
+
+```
+
+OpenCode config example
+===============================
+Put this into `opencode.json` or `.opencode/mcp.json`:
+
+```json
+
+{
+  "mcpServers": {
+    "smtp": {
+      "type": "stdio",
+      "command": "go-mcp-smtp",
+      "args": [
+        "--network=tcp",
+        "--address=smtp.example.org:587",
+        "--host=smtp.example.org",
+        "--helo=localhost",
+        "--username=username",
+        "--password=password",
+        "--from=bot@example.org",
+        "--start_tls=true"
+      ],
+      "timeout": 120,
+      "disabled": false,
+      "env": {}
+    }
+  }
+}
+
+```
+
+OpenClaw config example
+==================================
+
+Put this into `openclaw.yaml`
+
+```yaml
+
+mcp:
+  servers:
+    smtp:
+      command: go-mcp-smtp
+      args:
+        - "--network=tcp"
+        - "--address=smtp.example.org:587"
+        - "--host=smtp.example.org"
+        - "--helo=localhost"
+        - "--username=username"
+        - "--password=password"
+        - "--from=bot@example.org"
+        - "--start_tls=true"
+      timeout: 120
+      disabled: false
+      env: {}
+
+```
+
+PicoClaw config example
+=======================================
+Put this into `picoclaw.json`
+
+
+```json
+
+{
+  "mcp": {
+    "servers": {
+      "smtp": {
+        "command": "go-mcp-smtp",
+        "args": [
+          "--network=tcp",
+          "--address=smtp.example.org:587",
+          "--host=smtp.example.org",
+          "--helo=localhost",
+          "--username=username",
+          "--password=password",
+          "--from=bot@example.org",
+          "--start_tls=true"
+        ],
+        "timeout": 120,
+        "disabled": false,
+        "env": {}
+      }
+    }
+  }
+}
+```
+
+Cursor
+========================
+Put this into `.cursor/mcp.json`:
+
+```json
+
+{
+  "mcpServers": {
+    "smtp": {
+      "command": "go-mcp-smtp",
+      "args": [
+        "--network=tcp",
+        "--address=smtp.example.org:587",
+        "--host=smtp.example.org",
+        "--helo=localhost",
+        "--username=username",
+        "--password=password",
+        "--from=bot@example.org",
+        "--start_tls=true"
+      ]
+    }
+  }
+}
+
+```
+
+
+Goose
+======================
+Put this into `~/.config/goose/mcp.json`
+
+```json
+
+{
+  "mcpServers": {
+    "smtp": {
+      "command": "go-mcp-smtp",
+      "args": [
+        "--network=tcp",
+        "--address=smtp.example.org:587",
+        "--host=smtp.example.org",
+        "--helo=localhost",
+        "--username=username",
+        "--password=password",
+        "--from=bot@example.org",
+        "--start_tls=true"
+      ],
+      "timeout": 120
+    }
+  }
+}
+
+```
