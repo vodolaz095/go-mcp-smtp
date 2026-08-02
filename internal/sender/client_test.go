@@ -16,7 +16,7 @@ func TestClient(t *testing.T) {
 		"SMTP_TO",
 	}
 	for i := range env {
-		if !assert.NotEmpty(t, os.Getenv(env[i])) {
+		if os.Getenv(env[i]) == "" {
 			t.Skipf("Environment variable %s is empty", env[i])
 			return
 		}

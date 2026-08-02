@@ -1,0 +1,32 @@
+# This is an nfpm configuration file.
+# Make sure to check the documentation at https://nfpm.goreleaser.com
+# See https://github.com/goreleaser/nfpm/blob/main/www/content/docs/configuration.md
+#
+# The lines below are called `modelines`. See `:help modeline`
+# Feel free to remove those if you don't want/need to use them.
+# yaml-language-server: $schema=https://nfpm.goreleaser.com/static/schema.json
+# vim: set ts=2 sw=2 tw=0 fo=cnqoj
+
+name: go-mcp-smtp
+arch: "x86_64"
+platform: "linux"
+version: ${SEMVER}
+section: "default"
+priority: ""
+provides:
+  - go-mcp-smtp
+recommends: []
+suggests: []
+conflicts: []
+maintainer: "Anatolij Ostroumov <anatolij@vodolaz095.ru>"
+description: MCP server to send email messages via SMTP Submission protocol.
+vendor: "Anatolij Ostroumov"
+homepage: "https://github.com/vodolaz095/go-mcp-smtp"
+license: "MIT"
+contents:
+# binary
+  - src: ./build/go-mcp-smtp
+    dst: /usr/bin/go-mcp-smtp
+# license
+  - src: ./LICENSE
+    dst: /usr/share/licenses/go-mcp-smtp/LICENSE
