@@ -16,7 +16,9 @@ var (
 	startTLS                                         bool
 	from                                             string
 
-	Version    = "development"
+	// Version is the current version of the application, typically set during build
+	Version = "development"
+	// Subversion is the extra build information for the application, typically set during build
 	Subversion = "development"
 )
 

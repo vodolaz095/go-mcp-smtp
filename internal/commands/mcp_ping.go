@@ -7,8 +7,10 @@ import (
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
+// PingInput is the input structure for the Ping method, currently empty as no parameters are needed
 type PingInput struct{}
 
+// Ping checks the connectivity and availability of the SMTP submission server
 func (srv *MCP) Ping(ctx context.Context, _ *mcp.CallToolRequest, _ PingInput) (*mcp.CallToolResult, Output, error) {
 	err := srv.Sender.Ping(ctx)
 	if err != nil {

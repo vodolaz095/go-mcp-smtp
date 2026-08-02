@@ -6,6 +6,7 @@ import (
 	"net/mail"
 )
 
+// SendRaw sends a raw email message through the SMTP server
 func (c *Client) SendRaw(ctx context.Context, recipients, subject, body string) error {
 	tos, err := mail.ParseAddressList(recipients)
 	if err != nil {

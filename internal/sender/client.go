@@ -12,6 +12,7 @@ import (
 	"time"
 )
 
+// Client represents an SMTP client configuration for sending emails
 type Client struct {
 	Network  string
 	Address  string
