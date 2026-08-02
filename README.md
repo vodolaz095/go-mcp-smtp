@@ -1,5 +1,6 @@
 # go-mcp-smtp
 [![Go](https://github.com/vodolaz095/go-mcp-smtp/actions/workflows/go.yml/badge.svg)](https://github.com/vodolaz095/go-mcp-smtp/actions/workflows/go.yml)
+
 MCP server to send email messages via SMTP Submission protocol.
 
 I cannot say this project is useful, but at least i have understood how to implement MCP servers.

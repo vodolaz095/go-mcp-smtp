@@ -71,6 +71,9 @@ run:
 	  --verbose=true \
 	  --start_tls=true
 
+tag:
+	git tag "v$(majorVersion).$(minorVersion).$(patchVersion)"
+
 start: run
 
 upd/pkg:
