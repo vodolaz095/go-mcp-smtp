@@ -95,7 +95,7 @@ func main() {
 
 	mcp.AddTool(server, &mcp.Tool{
 		Name:        "sendRawEmail",
-		Title:       "send raw email message - agent should provide list of recipients, subject and raw message text",
+		Title:       "send raw email message - agent should provide list of recipients (in RFC 5322 format like `John Doe <john.doe@example.org>, Jane Doe <jane.doe@example.org>`), subject and raw message text",
 		Description: "send raw email message",
 	}, srv.SendRawEmail)
 	mcp.AddTool(server, &mcp.Tool{

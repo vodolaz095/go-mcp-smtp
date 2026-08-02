@@ -38,7 +38,31 @@ func TestClient(t *testing.T) {
 		}
 		return
 	})
-	t.Run("sendRaw", func(tt *testing.T) {
+	t.Run("sendRawEmpty", func(tt *testing.T) {
+		err := client.SendRaw(tt.Context(), "", "Test email send via go-mcp-smtp", "Test email send via go-mcp-smtp")
+		assert.NotNil(tt, err)
+		tt.Logf("error: %v", err)
+		assert.ErrorContains(tt, err, "error parsing recipients")
+		assert.ErrorContains(tt, err, "mail: no address")
+		return
+	})
+	t.Run("sendRawMalformed", func(tt *testing.T) {
+		err := client.SendRaw(tt.Context(), "not.an.email.address", "Test email send via go-mcp-smtp", "Test email send via go-mcp-smtp")
+		assert.NotNil(tt, err)
+		tt.Logf("error: %v", err)
+		assert.ErrorContains(tt, err, "error parsing recipients not.an.email.address")
+		assert.ErrorContains(tt, err, "mail: missing '@' or angle-addr")
+		return
+	})
+	t.Run("sendRawPartiallyMalformed", func(tt *testing.T) {
+		err := client.SendRaw(tt.Context(), os.Getenv("SMTP_TO")+", not.an.email.address", "Test email send via go-mcp-smtp", "Test email send via go-mcp-smtp")
+		assert.NotNil(tt, err)
+		tt.Logf("error: %v", err)
+		assert.ErrorContains(tt, err, "error parsing recipients")
+		assert.ErrorContains(tt, err, "mail: missing '@' or angle-addr")
+		return
+	})
+	t.Run("sendRawOK", func(tt *testing.T) {
 		err := client.SendRaw(tt.Context(), os.Getenv("SMTP_TO"), "Test email send via go-mcp-smtp", "Test email send via go-mcp-smtp")
 		if err != nil {
 			tt.Errorf("error sending test email: %s", err)
