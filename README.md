@@ -6,16 +6,24 @@ And it works somehow:
 ![crush.png](crush.png)
 
 
+Installation
+==========================
+Tested with golang compiler v1.26.4 and Fedora Linux 43.
+
+```sh
+go install -v github.com/vodolaz095/go-mcp-smtp@latest
+```
+
 Command line arguments
 ==========================
 ```
-Usage of go-mcp-smtp:
+Usage of ./build/go-mcp-smtp:
   -address string
     	smtp submission server connection string (default "localhost:587")
   -from string
     	FROM header for email messages (default "mcp@localhost")
   -helo string
-    	smtp submission server connection string, protocol can be smtp or smtps (default "localhost")
+    	how to introduce ourselves during HELO step of SMTP negotiation (default "localhost")
   -host string
     	tls server name to use in TLS negotiation (default "localhost")
   -network string
@@ -26,6 +34,8 @@ Usage of go-mcp-smtp:
     	start tls if possible (default true)
   -username string
     	username to use for authentication - can be blank
+  -verbose
+    	use verbose mode
 ```
 
 Crush config example
