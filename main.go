@@ -27,6 +27,7 @@ var (
 func main() {
 	ctx, cancel := stopper.New()
 	defer cancel()
+	var err error
 
 	flag.StringVar(&network, "network", "tcp", "how to dial smtp server, can be tcp,tcp4,tcp6,unix")
 	flag.StringVar(&address, "address", "localhost:587", "smtp submission server connection string")
@@ -57,7 +58,7 @@ func main() {
 		From:     from,
 	}
 
-	err := transport.Ping(ctx)
+	err = transport.Ping(ctx)
 	if err != nil {
 		log.Fatalf("error checking connection for smtp server: %s", err)
 		return
