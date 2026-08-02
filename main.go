@@ -15,7 +15,7 @@ import (
 
 var (
 	network, address, helo, host, username, password string
-	startTLS                                         bool
+	startTLS, verbose                                bool
 	from                                             string
 
 	// Version is the current version of the application, typically set during build
@@ -31,17 +31,20 @@ func main() {
 	flag.StringVar(&network, "network", "tcp", "how to dial smtp server, can be tcp,tcp4,tcp6,unix")
 	flag.StringVar(&address, "address", "localhost:587", "smtp submission server connection string")
 	flag.StringVar(&host, "host", "localhost", "tls server name to use in TLS negotiation")
-	flag.StringVar(&helo, "helo", "localhost", "smtp submission server connection string, protocol can be smtp or smtps")
+	flag.StringVar(&helo, "helo", "localhost", "how to introduce ourselves during HELO step of SMTP negotiation")
 	flag.StringVar(&username, "username", "", "username to use for authentication - can be blank")
 	flag.StringVar(&password, "password", "", "password to use for authentication - can be blank")
 	flag.StringVar(&from, "from", "mcp@localhost", "FROM header for email messages")
 	flag.BoolVar(&startTLS, "start_tls", true, "start tls if possible")
+	flag.BoolVar(&verbose, "verbose", false, "use verbose mode")
 	flag.Parse()
 
 	log.SetOutput(os.Stderr)
-	log.Printf("Starting go-mcp-smtp. Version: %s. Subversion: %s. Please, report bugs here: https://github.com/vodolaz095/go-mcp-smtp/issues",
-		Version, Subversion,
-	)
+	if verbose {
+		log.Printf("Starting go-mcp-smtp. Version: %s. Subversion: %s. Please, report bugs here: https://github.com/vodolaz095/go-mcp-smtp/issues",
+			Version, Subversion,
+		)
+	}
 
 	transport := sender.Client{
 		Network:  network,
@@ -59,7 +62,9 @@ func main() {
 		log.Fatalf("error checking connection for smtp server: %s", err)
 		return
 	}
-	log.Printf("SMTP server %s is cooperating...", address)
+	if verbose {
+		log.Printf("SMTP server %s is cooperating...", address)
+	}
 	srv := commands.MCP{Sender: &transport}
 
 	server := mcp.NewServer(&mcp.Implementation{Name: "go-mcp-smtp",
@@ -69,7 +74,9 @@ func main() {
 		WebsiteURL:  "https://github.com/vodolaz095/go-mcp-smtp",
 	}, &mcp.ServerOptions{
 		InitializedHandler: func(ctx context.Context, _ *mcp.InitializedRequest) {
-			log.Println("MCP server is initialized!")
+			if verbose {
+				log.Println("MCP server is initialized!")
+			}
 		},
 		Capabilities: &mcp.ServerCapabilities{
 			Prompts: &mcp.PromptCapabilities{
@@ -95,8 +102,9 @@ func main() {
 		Title:       "ping SMTP Submission server to ensure it works with parameters provided",
 		Description: "ensure smtp submission server is functional",
 	}, srv.Ping)
-
-	log.Printf("Starting MCP...")
+	if verbose {
+		log.Printf("Starting MCP...")
+	}
 	err = server.Run(ctx, &mcp.StdioTransport{})
 	if err != nil {
 		log.Fatal(err)
