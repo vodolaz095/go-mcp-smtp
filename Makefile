@@ -27,9 +27,10 @@ build: deps
 
 tools:
 	which go
-	which govulncheck
-	which golint
-	which staticcheck
+	which govulncheck # go install golang.org/x/vuln/cmd/govulncheck@latest
+	which golint # go install golang.org/x/lint/golint@latest
+	which staticcheck # go install honnef.co/go/tools/cmd/staticcheck@latest
+	which tparse # go install github.com/mfridman/tparse@latest
 
 # https://go.dev/blog/govulncheck
 # install it by go install golang.org/x/vuln/cmd/govulncheck@latest
@@ -37,6 +38,9 @@ vuln:
 	which govulncheck
 	govulncheck ./...
 
+
+# go install golang.org/x/lint/golint@latest
+# go install honnef.co/go/tools/cmd/staticcheck@latest
 lint:
 	gofmt -w=true -s=true -l=true ./
 	golint ./...
@@ -55,6 +59,17 @@ tparse:
 cover:
 	go test -v --cover ./...
 
+run:
+	go run main.go \
+	  --network=tcp \
+	  --address=localhost:587 \
+	  --host=localhost \
+	  --helo=localhost \
+	  --username=username \
+	  --password=password \
+	  --from="mcp@localhost" \
+	  --verbose=true \
+	  --start_tls=true
 
 start: run
 
@@ -62,18 +77,44 @@ upd/pkg:
 	go get -u github.com/vodolaz095/pkg@latest
 	go mod tidy
 
-pkg: clean build
-	echo "Downloading bounce file..." # TODO - use limited selfhosted in order to fix license
-	curl -v -o build/bounces.txt https://raw.githubusercontent.com/zone-eu/zone-mta/master/config/bounces.txt
-#	cp contrib/bounces.txt build/bounces.txt
-	echo "Generating bash completions..."
-	./build/$(app) completion bash > build/$(app).sh
-	echo "Generating manual..."
-	mkdir -p build/man
-	./build/$(app) man build/man/
-	echo "Generating config examples..."
-	./build/$(app) generate ./build/config_full.yaml
-
 include make/*.mk
+
+nfpm/rpm: build
+	mkdir -p ~/rpmbuild/BUILD/
+	mkdir -p ~/rpmbuild/BUILDROOT/
+	mkdir -p ~/rpmbuild/RPMS/x86_64/
+	mkdir -p ~/rpmbuild/SOURCES/
+	mkdir -p ~/rpmbuild/SPECS/
+	mkdir -p ~/rpmbuild/SRPMS/
+	SEMVER=$(majorVersion).$(minorVersion).$(patchVersion) nfpm package -p rpm -t ~/rpmbuild/RPMS/x86_64/
+	rpm --addsign ~/rpmbuild/RPMS/x86_64/$(app)-$(majorVersion).$(minorVersion).$(patchVersion)-1.x86_64.rpm
+	rpm --checksig -v ~/rpmbuild/RPMS/x86_64/$(app)-$(majorVersion).$(minorVersion).$(patchVersion)-1.x86_64.rpm
+
+nfpm/deb: build
+	SEMVER=$(majorVersion).$(minorVersion).$(patchVersion) nfpm package -p deb -t ./build/
+
+nfpm/apk: build
+	SEMVER=$(majorVersion).$(minorVersion).$(patchVersion) nfpm package -p apk -t ./build/
+
+nfpm/arch: build
+	SEMVER=$(majorVersion).$(minorVersion).$(patchVersion) nfpm package -p archlinux -t ./build/
+
+nfpm/ipk: build
+	SEMVER=$(majorVersion).$(minorVersion).$(patchVersion) nfpm package -p ipk -t ./build/
+
+nfpm/all: build
+	mkdir -p ~/rpmbuild/BUILD/
+	mkdir -p ~/rpmbuild/BUILDROOT/
+	mkdir -p ~/rpmbuild/RPMS/x86_64/
+	mkdir -p ~/rpmbuild/SOURCES/
+	mkdir -p ~/rpmbuild/SPECS/
+	mkdir -p ~/rpmbuild/SRPMS/
+	SEMVER=$(majorVersion).$(minorVersion).$(patchVersion) nfpm package -p rpm -t ~/rpmbuild/RPMS/x86_64/
+	rpm --addsign ~/rpmbuild/RPMS/x86_64/$(app)-$(majorVersion).$(minorVersion).$(patchVersion)-1.x86_64.rpm
+	rpm --checksig -v ~/rpmbuild/RPMS/x86_64/$(app)-$(majorVersion).$(minorVersion).$(patchVersion)-1.x86_64.rpm
+	SEMVER=$(majorVersion).$(minorVersion).$(patchVersion) nfpm package -p deb -t ./build/
+	SEMVER=$(majorVersion).$(minorVersion).$(patchVersion) nfpm package -p apk -t ./build/
+	SEMVER=$(majorVersion).$(minorVersion).$(patchVersion) nfpm package -p archlinux -t ./build/
+	SEMVER=$(majorVersion).$(minorVersion).$(patchVersion) nfpm package -p ipk -t ./build/
 
 .PHONY: test build generate
