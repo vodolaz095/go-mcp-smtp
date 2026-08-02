@@ -19,6 +19,8 @@ func TestMCP_Ping_OK(t *testing.T) {
 	_, resp, err := mcp.Ping(t.Context(), nil, PingInput{})
 	assert.Nil(t, err)
 	assert.Equal(t, "smtp submission server is cooperating", resp.Message)
+	assert.True(t, tr.PingCalled)
+	assert.False(t, tr.SendRawCalled)
 }
 
 func TestMCP_Ping_Error(t *testing.T) {
@@ -32,6 +34,8 @@ func TestMCP_Ping_Error(t *testing.T) {
 	_, resp, err := mcp.Ping(t.Context(), nil, PingInput{})
 	assert.ErrorContains(t, err, "something is broken")
 	assert.Equal(t, "error checking smtp submission server: something is broken", resp.Message)
+	assert.True(t, tr.PingCalled)
+	assert.False(t, tr.SendRawCalled)
 }
 
 func TestMCP_SendRawEmail_OK(t *testing.T) {
@@ -49,6 +53,8 @@ func TestMCP_SendRawEmail_OK(t *testing.T) {
 	})
 	assert.Nil(t, err)
 	assert.Equal(t, "message is accepted by submission server", resp.Message)
+	assert.False(t, tr.PingCalled)
+	assert.True(t, tr.SendRawCalled)
 }
 
 func TestMCP_SendRawEmail_Error(t *testing.T) {
@@ -67,4 +73,6 @@ func TestMCP_SendRawEmail_Error(t *testing.T) {
 	assert.Error(t, err)
 	assert.ErrorContains(t, err, "something is broken")
 	assert.Equal(t, "error sending message: something is broken", resp.Message)
+	assert.False(t, tr.PingCalled)
+	assert.True(t, tr.SendRawCalled)
 }
