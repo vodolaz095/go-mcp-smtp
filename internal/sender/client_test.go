@@ -1,1 +1,48 @@
 package sender
+
+import (
+	"os"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+)
+
+func TestClient(t *testing.T) {
+	env := []string{
+		"SMTP_HOST",
+		"SMTP_USERNAME",
+		"SMTP_PASSWORD",
+		"SMTP_FROM",
+		"SMTP_TO",
+	}
+	for i := range env {
+		if !assert.NotEmpty(t, os.Getenv(env[i])) {
+			t.Skipf("Environment variable %s is empty", env[i])
+			return
+		}
+	}
+	client := Client{
+		Network:  "tcp",
+		Address:  os.Getenv("SMTP_HOST") + ":587",
+		Helo:     "localhost",
+		Host:     os.Getenv("SMTP_HOST"),
+		Username: os.Getenv("SMTP_USERNAME"),
+		Password: os.Getenv("SMTP_PASSWORD"),
+		StartTLS: true,
+		From:     os.Getenv("SMTP_FROM"),
+	}
+	t.Run("ping", func(tt *testing.T) {
+		err := client.Ping(tt.Context())
+		if err != nil {
+			tt.Errorf("error pinging: %s", err)
+		}
+		return
+	})
+	t.Run("sendRaw", func(tt *testing.T) {
+		err := client.SendRaw(tt.Context(), os.Getenv("SMTP_TO"), "Test email send via go-mcp-smtp", "Test email send via go-mcp-smtp")
+		if err != nil {
+			tt.Errorf("error sending test email: %s", err)
+		}
+		return
+	})
+}
