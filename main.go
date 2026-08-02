@@ -16,8 +16,8 @@ var (
 	startTLS                                         bool
 	from                                             string
 
-	Version    string
-	Subversion string
+	Version    = "development"
+	Subversion = "development"
 )
 
 func main() {
@@ -33,6 +33,10 @@ func main() {
 	flag.StringVar(&from, "from", "mcp@localhost", "FROM header for email messages")
 	flag.BoolVar(&startTLS, "start_tls", true, "start tls if possible")
 	flag.Parse()
+
+	log.Printf("Starting go-mcp-smtp. Version: %s. Subversion: %s. Please, report bugs here: https://github.com/vodolaz095/go-mcp-smtp/issues",
+		Version, Subversion,
+	)
 
 	transport := sender.Client{
 		Network:  network,
@@ -60,8 +64,17 @@ func main() {
 		WebsiteURL:  "https://github.com/vodolaz095/go-mcp-smtp",
 	}, nil)
 
-	mcp.AddTool(server, &mcp.Tool{Name: "sendRawEmail", Description: "send raw email message"}, srv.SendRawEmail)
-	mcp.AddTool(server, &mcp.Tool{Name: "ping", Description: "ensure smtp submission server is functional"}, srv.Ping)
+	mcp.AddTool(server, &mcp.Tool{
+		Name:        "sendRawEmail",
+		Title:       "send raw email message - agent should provide list of recipients, subject and raw message text",
+		Description: "send raw email message",
+	}, srv.SendRawEmail)
+	mcp.AddTool(server, &mcp.Tool{
+		Name:        "ping",
+		Title:       "ping SMTP Submission server to ensure it works with parameters provided",
+		Description: "ensure smtp submission server is functional",
+	}, srv.Ping)
+
 	err = server.Run(ctx, &mcp.StdioTransport{})
 	if err != nil {
 		log.Fatal(err)

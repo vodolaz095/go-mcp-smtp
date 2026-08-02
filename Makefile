@@ -24,6 +24,13 @@ build: deps
 	CGO_ENABLED=0 go build -ldflags "-w -s -X main.Subversion=$(subver) -X main.Version=$(ver)" -o build/$(app) main.go
 	ls -lh build/
 
+
+tools:
+	which go
+	which govulncheck
+	which golint
+	which staticcheck
+
 # https://go.dev/blog/govulncheck
 # install it by go install golang.org/x/vuln/cmd/govulncheck@latest
 vuln:
