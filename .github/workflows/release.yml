@@ -78,7 +78,7 @@ jobs:
           GOOS: windows
           CGO_ENABLED: 0
           GOARCH: amd64
-        run: go build -ldflags "-s -w -X main.Version=${{ github.sha }}" -o build/dashboard.exe main.go
+        run: go build -ldflags "-s -w -X main.Version=${{ github.sha }}" -o build/go-mcp-smtp.exe main.go
 
       - name: Build binary for macOS on AMD64
         env:
