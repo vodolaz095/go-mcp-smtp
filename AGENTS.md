@@ -69,6 +69,7 @@ The MCP server requires configuration via command-line arguments when starting:
 - `--password`: SMTP authentication password
 - `--from`: Default sender email address
 - `--start_tls`: Whether to use STARTTLS (true/false)
+- `--verbose`: Use verbose mode
 
 See the README.md for a complete configuration example.
 
