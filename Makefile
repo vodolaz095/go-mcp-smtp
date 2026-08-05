@@ -10,10 +10,11 @@ export ver=$(majorVersion).$(minorVersion).$(patchVersion).$(gittip)-$(arch)
 
 clean:
 	rm -f build/$(app)
-	rm -f build/$(app).sh
 	rm -f build/*.deb
 	rm -f build/*.rpm
 	rm -f build/*.apk
+	rm -f build/*.pkg.tar.zst
+	rm -f build/*.ipk
 
 deps:
 	go mod download
