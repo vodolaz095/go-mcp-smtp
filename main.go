@@ -71,7 +71,7 @@ func main() {
 	server := mcp.NewServer(&mcp.Implementation{Name: "go-mcp-smtp",
 		Title:       "go-mcp-smtp",
 		Description: "MCP server to send email messages via SMTP submission server",
-		Version:     "0.1.0",
+		Version:     "1.0.0",
 		WebsiteURL:  "https://github.com/vodolaz095/go-mcp-smtp",
 	}, &mcp.ServerOptions{
 		InitializedHandler: func(ctx context.Context, _ *mcp.InitializedRequest) {
