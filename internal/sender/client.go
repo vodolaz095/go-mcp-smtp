@@ -31,16 +31,17 @@ func (c *Client) makeBody(tos []*mail.Address, subject, body string) []byte {
 	}
 
 	now := time.Now()
-	buh := bytes.NewBufferString("Date: " + now.Format(time.RFC1123Z) + "\r\n")
-	buh.WriteString("From: " + c.From + "\r\n")
-	buh.WriteString("To: " + strings.Join(to, ",") + "\r\n")
-	buh.WriteString(fmt.Sprintf("Subject: %s\r\n", subject))
-	buh.WriteString("X-Mailer: github.com/vodolaz095/go-mcp-smtp\r\n")
-	buh.WriteString("Content-Type: text/plain; charset=\"utf-8\"\r\n")
-	buh.WriteString("MIME-Version: 1.0\r\n")
-	buh.WriteString(fmt.Sprintf("Message-Id: <%s@%s>\r\n", now.Format("20060102150405"), c.Host))
-	buh.WriteString("\r\n")
-	buh.WriteString(body)
+	buh := bytes.NewBuffer(nil)
+	fmt.Fprintf(buh, "Date: %s\r\n", now.Format(time.RFC1123Z))
+	fmt.Fprintf(buh, "From: %s\r\n", c.From)
+	fmt.Fprintf(buh, "To: %s\r\n", strings.Join(to, ","))
+	fmt.Fprintf(buh, "Subject: %s\r\n", subject)
+	fmt.Fprintf(buh, "X-Mailer: github.com/vodolaz095/go-mcp-smtp\r\n")
+	fmt.Fprintf(buh, "Content-Type: text/plain; charset=\"utf-8\"\r\n")
+	fmt.Fprintf(buh, "MIME-Version: 1.0\r\n")
+	fmt.Fprintf(buh, "Message-Id: <%s@%s>\r\n", now.Format("20060102150405"), c.Host)
+	fmt.Fprint(buh, "\r\n")
+	fmt.Fprint(buh, body)
 	return buh.Bytes()
 }
 
