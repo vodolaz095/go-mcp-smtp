@@ -20,7 +20,7 @@ This document describes the MCP server agents provided by the `go-mcp-smtp` proj
 **Example Usage**:
 ```json
 {
-  "tool": "Ping",
+  "tool": "ping",
   "input": {}
 }
 ```
@@ -44,7 +44,7 @@ This document describes the MCP server agents provided by the `go-mcp-smtp` proj
 **Example Usage**:
 ```json
 {
-  "tool": "SendRawEmail",
+  "tool": "sendRawEmail",
   "input": {
     "recipients": "John Doe <john@example.com>, Jane Smith <jane@example.com>",
     "subject": "Test Message",
