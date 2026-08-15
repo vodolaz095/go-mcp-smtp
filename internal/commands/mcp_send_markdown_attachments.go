@@ -7,9 +7,11 @@ import (
 	"fmt"
 	"io"
 	"mime/multipart"
+	"net/mail"
 	"net/textproto"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/gomarkdown/markdown"
 	"github.com/gomarkdown/markdown/html"
@@ -28,6 +30,16 @@ type SendMarkDownWithAttachmentsInput struct {
 // SendMarkDownWithAttachmentsEmail sends a multipart email message through the SMTP submission server with content rendered from markdown and optional attachments
 func (srv *MCP) SendMarkDownWithAttachmentsEmail(ctx context.Context, _ *mcp.CallToolRequest, input SendMarkDownWithAttachmentsInput) (*mcp.CallToolResult, Output, error) {
 	var buf bytes.Buffer
+	now := time.Now()
+	tos, err := mail.ParseAddressList(input.Recipients)
+	if err != nil {
+		err = fmt.Errorf("error parsing recipients %s : %w", input.Recipients, err)
+		return nil, Output{Message: err.Error()}, err
+	}
+	if len(tos) == 0 {
+		err = fmt.Errorf("empty list of recipients")
+		return nil, Output{Message: err.Error()}, err
+	}
 
 	plain := bytes.NewBufferString(input.Markdown)
 	rendered := mdToHTML(plain.Bytes())
@@ -35,6 +47,14 @@ func (srv *MCP) SendMarkDownWithAttachmentsEmail(ctx context.Context, _ *mcp.Cal
 	writer := multipart.NewWriter(&buf)
 
 	buf.WriteString(fmt.Sprintf("Content-Type: multipart/alternative; boundary=%s\r\n\r\n", writer.Boundary()))
+	buf.WriteString(fmt.Sprintf("Date: %s\r\n", now.Format(time.RFC1123Z)))
+	buf.WriteString(fmt.Sprintf("From: %s\r\n", srv.From))
+	buf.WriteString(fmt.Sprintf("To: %s\r\n", input.Recipients))
+	buf.WriteString(fmt.Sprintf("Subject: %s\r\n", input.Subject))
+	buf.WriteString(fmt.Sprintf("X-Mailer: github.com/vodolaz095/go-mcp-smtp\r\n"))
+	buf.WriteString(fmt.Sprintf("MIME-Version: 1.0\r\n"))
+	buf.WriteString(fmt.Sprintf("Message-Id: <%s@%s>\r\n", now.Format("20060102150405"), srv.Host))
+	buf.WriteString(fmt.Sprintf("\r\n"))
 
 	textHeader := make(textproto.MIMEHeader)
 	textHeader.Set("Content-Type", "text/plain; charset=UTF-8")
@@ -91,9 +111,7 @@ func (srv *MCP) SendMarkDownWithAttachmentsEmail(ctx context.Context, _ *mcp.Cal
 		return nil, Output{Message: err.Error()}, err
 	}
 
-	err = srv.Sender.SendRaw(ctx, input.Recipients, input.Subject, buf.String(),
-		fmt.Sprintf("Content-Type: multipart/mixed; boundary=%s", writer.Boundary()),
-	)
+	err = srv.Sender.SendRaw(ctx, tos, &buf)
 	if err != nil {
 		return nil, Output{Message: fmt.Sprintf("error sending message: %s", err)}, err
 	}

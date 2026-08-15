@@ -66,7 +66,11 @@ func main() {
 	if verbose {
 		log.Printf("SMTP server %s is cooperating...", address)
 	}
-	srv := commands.MCP{Sender: &transport}
+	srv := commands.MCP{
+		Sender: &transport,
+		From:   from,
+		Host:   host,
+	}
 
 	server := mcp.NewServer(&mcp.Implementation{Name: "go-mcp-smtp",
 		Title:       "go-mcp-smtp",

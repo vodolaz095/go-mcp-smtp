@@ -1,17 +1,15 @@
 package sender
 
 import (
+	"bytes"
 	"context"
 	"fmt"
+	"io"
 	"net/mail"
 )
 
 // SendRaw sends a raw email message through the SMTP server
-func (c *Client) SendRaw(ctx context.Context, recipients, subject, body, contentType string) error {
-	tos, err := mail.ParseAddressList(recipients)
-	if err != nil {
-		return fmt.Errorf("error parsing recipients %s : %w", recipients, err)
-	}
+func (c *Client) SendRaw(ctx context.Context, tos []*mail.Address, body *bytes.Buffer) error {
 	if len(tos) == 0 {
 		return fmt.Errorf("empty list of recipients")
 	}
@@ -31,7 +29,7 @@ func (c *Client) SendRaw(ctx context.Context, recipients, subject, body, content
 	if err != nil {
 		return fmt.Errorf("error executing DATA for %s %s: %w", c.Network, c.Address, err)
 	}
-	_, err = wc.Write(c.makeBody(tos, subject, body, contentType))
+	_, err = io.Copy(wc, body)
 	if err != nil {
 		return fmt.Errorf("error sending email body for %s %s: %w", c.Network, c.Address, err)
 	}

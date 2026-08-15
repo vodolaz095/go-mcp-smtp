@@ -85,7 +85,7 @@ func TestMCP_SendMarkDownWithoutAttachments(t *testing.T) {
 	}
 	mcp := MCP{Sender: &tr}
 
-	_, resp, err := mcp.SendMarkDownWithAttachments(t.Context(), nil, SendMarkDownWithAttachmentsInput{
+	_, resp, err := mcp.SendMarkDownWithAttachmentsEmail(t.Context(), nil, SendMarkDownWithAttachmentsInput{
 		Recipients: "somebody@example.org",
 		Subject:    "test email, please ignore",
 		Markdown:   "test email, please **ignore**",
@@ -104,7 +104,7 @@ func TestMCP_SendMarkDownWithAttachments(t *testing.T) {
 	}
 	mcp := MCP{Sender: &tr}
 
-	_, resp, err := mcp.SendMarkDownWithAttachments(t.Context(), nil, SendMarkDownWithAttachmentsInput{
+	_, resp, err := mcp.SendMarkDownWithAttachmentsEmail(t.Context(), nil, SendMarkDownWithAttachmentsInput{
 		Recipients: "somebody@example.org",
 		Subject:    "test email, please ignore",
 		Markdown:   "test email, please **ignore**",

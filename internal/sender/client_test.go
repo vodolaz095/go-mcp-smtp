@@ -1,13 +1,14 @@
 package sender
 
 import (
+	"net/mail"
 	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
-func TestClient(t *testing.T) {
+func TestSenderClient(t *testing.T) {
 	env := []string{
 		"SMTP_HOST",
 		"SMTP_USERNAME",
@@ -38,42 +39,49 @@ func TestClient(t *testing.T) {
 		}
 	})
 	t.Run("sendRawEmpty", func(tt *testing.T) {
-		err := client.SendRaw(tt.Context(), "",
-			"Test email send via go-mcp-smtp", "Test email send via go-mcp-smtp",
-			"Content-Type: text/plain; charset=\"utf-8\"",
+		err := client.SendRaw(tt.Context(), []*mail.Address{},
+			client.MakeBody([]*mail.Address{}, "Test email send via go-mcp-smtp", "Test email send via go-mcp-smtp"),
 		)
 		assert.NotNil(tt, err)
 		tt.Logf("error: %v", err)
-		assert.ErrorContains(tt, err, "error parsing recipients")
-		assert.ErrorContains(tt, err, "mail: no address")
+		assert.ErrorContains(tt, err, "empty list of recipients")
 	})
 	t.Run("sendRawMalformed", func(tt *testing.T) {
-		err := client.SendRaw(tt.Context(), "not.an.email.address",
-			"Test email send via go-mcp-smtp",
-			"Test email send via go-mcp-smtp",
-			"Content-Type: text/plain; charset=\"utf-8\"",
+		err := client.SendRaw(tt.Context(),
+			[]*mail.Address{
+				{
+					Address: "not.an.email.address",
+				},
+			},
+			client.MakeBody([]*mail.Address{}, "Test email send via go-mcp-smtp", "Test email send via go-mcp-smtp"),
 		)
 		assert.NotNil(tt, err)
 		tt.Logf("error: %v", err)
-		assert.ErrorContains(tt, err, "error parsing recipients not.an.email.address")
-		assert.ErrorContains(tt, err, "mail: missing '@' or angle-addr")
+		assert.ErrorContains(tt, err, "Malformed e-mail address")
 	})
 	t.Run("sendRawPartiallyMalformed", func(tt *testing.T) {
-		err := client.SendRaw(tt.Context(), os.Getenv("SMTP_TO")+", not.an.email.address",
-			"Test email send via go-mcp-smtp",
-			"Test email send via go-mcp-smtp",
-			"Content-Type: text/plain; charset=\"utf-8\"",
+		err := client.SendRaw(tt.Context(),
+			[]*mail.Address{
+				{
+					Address: os.Getenv("SMTP_TO") + ", not.an.email.address",
+				},
+			},
+			client.MakeBody([]*mail.Address{}, "Test email send via go-mcp-smtp", "Test email send via go-mcp-smtp"),
 		)
 		assert.NotNil(tt, err)
 		tt.Logf("error: %v", err)
-		assert.ErrorContains(tt, err, "error parsing recipients")
-		assert.ErrorContains(tt, err, "mail: missing '@' or angle-addr")
+		assert.ErrorContains(tt, err, "Malformed e-mail address")
 	})
 	t.Run("sendRawOK", func(tt *testing.T) {
-		err := client.SendRaw(tt.Context(), os.Getenv("SMTP_TO"),
-			"Test email send via go-mcp-smtp",
-			"Test email send via go-mcp-smtp",
-			"Content-Type: text/plain; charset=\"utf-8\"",
+		err := client.SendRaw(tt.Context(),
+			[]*mail.Address{
+				{
+					Address: os.Getenv("SMTP_TO"),
+				},
+			},
+			client.MakeBody([]*mail.Address{
+				{Name: "", Address: os.Getenv("SMTP_TO")},
+			}, "Test email send via go-mcp-smtp", "Test email send via go-mcp-smtp"),
 		)
 		if err != nil {
 			tt.Errorf("error sending test email: %s", err)
