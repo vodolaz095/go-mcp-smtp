@@ -24,9 +24,9 @@ func (m *Mock) Ping(context.Context) error {
 }
 
 // SendRaw emulates sending message via remote SMTP Submission server
-func (m *Mock) SendRaw(_ context.Context, recipients, subject, body string) error {
+func (m *Mock) SendRaw(_ context.Context, recipients, subject, body, contentType string) error {
 	m.T.Helper()
-	m.T.Logf("SendRaw is called: recipients=%q, subject=%q, body=%q", recipients, subject, body)
+	m.T.Logf("SendRaw is called: recipients=%q, subject=%q, body=%q, contentType=%q", recipients, subject, body, contentType)
 	m.SendRawCalled = true
 	return m.SendRawError
 }

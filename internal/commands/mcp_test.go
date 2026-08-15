@@ -76,3 +76,44 @@ func TestMCP_SendRawEmail_Error(t *testing.T) {
 	assert.False(t, tr.PingCalled)
 	assert.True(t, tr.SendRawCalled)
 }
+
+func TestMCP_SendMarkDownWithoutAttachments(t *testing.T) {
+	tr := sender.Mock{
+		T:            t,
+		PingErr:      nil,
+		SendRawError: nil,
+	}
+	mcp := MCP{Sender: &tr}
+
+	_, resp, err := mcp.SendMarkDownWithAttachments(t.Context(), nil, SendMarkDownWithAttachmentsInput{
+		Recipients: "somebody@example.org",
+		Subject:    "test email, please ignore",
+		Markdown:   "test email, please **ignore**",
+	})
+	assert.Nil(t, err)
+	assert.Equal(t, "message is accepted by submission server", resp.Message)
+	assert.False(t, tr.PingCalled)
+	assert.True(t, tr.SendRawCalled)
+}
+
+func TestMCP_SendMarkDownWithAttachments(t *testing.T) {
+	tr := sender.Mock{
+		T:            t,
+		PingErr:      nil,
+		SendRawError: nil,
+	}
+	mcp := MCP{Sender: &tr}
+
+	_, resp, err := mcp.SendMarkDownWithAttachments(t.Context(), nil, SendMarkDownWithAttachmentsInput{
+		Recipients: "somebody@example.org",
+		Subject:    "test email, please ignore",
+		Markdown:   "test email, please **ignore**",
+		Attachments: []string{
+			"/etc/passwd",
+		},
+	})
+	assert.Nil(t, err)
+	assert.Equal(t, "message is accepted by submission server", resp.Message)
+	assert.False(t, tr.PingCalled)
+	assert.True(t, tr.SendRawCalled)
+}

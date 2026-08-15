@@ -3,6 +3,7 @@ module github.com/vodolaz095/go-mcp-smtp
 go 1.26.4
 
 require (
+	github.com/gomarkdown/markdown v0.0.0-20260725000948-8435af3f5984
 	github.com/modelcontextprotocol/go-sdk v1.7.0
 	github.com/stretchr/testify v1.11.1
 	github.com/vodolaz095/pkg v1.5.6

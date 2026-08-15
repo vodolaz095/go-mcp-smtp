@@ -16,7 +16,7 @@ type SendRawInput struct {
 
 // SendRawEmail sends a raw email message through the SMTP submission server
 func (srv *MCP) SendRawEmail(ctx context.Context, _ *mcp.CallToolRequest, input SendRawInput) (*mcp.CallToolResult, Output, error) {
-	err := srv.Sender.SendRaw(ctx, input.Recipients, input.Subject, input.Body)
+	err := srv.Sender.SendRaw(ctx, input.Recipients, input.Subject, input.Body, "Content-Type: text/plain; charset=\"utf-8\"")
 	if err != nil {
 		return nil, Output{Message: fmt.Sprintf("error sending message: %s", err)}, err
 	}

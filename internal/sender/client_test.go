@@ -38,28 +38,43 @@ func TestClient(t *testing.T) {
 		}
 	})
 	t.Run("sendRawEmpty", func(tt *testing.T) {
-		err := client.SendRaw(tt.Context(), "", "Test email send via go-mcp-smtp", "Test email send via go-mcp-smtp")
+		err := client.SendRaw(tt.Context(), "",
+			"Test email send via go-mcp-smtp", "Test email send via go-mcp-smtp",
+			"Content-Type: text/plain; charset=\"utf-8\"",
+		)
 		assert.NotNil(tt, err)
 		tt.Logf("error: %v", err)
 		assert.ErrorContains(tt, err, "error parsing recipients")
 		assert.ErrorContains(tt, err, "mail: no address")
 	})
 	t.Run("sendRawMalformed", func(tt *testing.T) {
-		err := client.SendRaw(tt.Context(), "not.an.email.address", "Test email send via go-mcp-smtp", "Test email send via go-mcp-smtp")
+		err := client.SendRaw(tt.Context(), "not.an.email.address",
+			"Test email send via go-mcp-smtp",
+			"Test email send via go-mcp-smtp",
+			"Content-Type: text/plain; charset=\"utf-8\"",
+		)
 		assert.NotNil(tt, err)
 		tt.Logf("error: %v", err)
 		assert.ErrorContains(tt, err, "error parsing recipients not.an.email.address")
 		assert.ErrorContains(tt, err, "mail: missing '@' or angle-addr")
 	})
 	t.Run("sendRawPartiallyMalformed", func(tt *testing.T) {
-		err := client.SendRaw(tt.Context(), os.Getenv("SMTP_TO")+", not.an.email.address", "Test email send via go-mcp-smtp", "Test email send via go-mcp-smtp")
+		err := client.SendRaw(tt.Context(), os.Getenv("SMTP_TO")+", not.an.email.address",
+			"Test email send via go-mcp-smtp",
+			"Test email send via go-mcp-smtp",
+			"Content-Type: text/plain; charset=\"utf-8\"",
+		)
 		assert.NotNil(tt, err)
 		tt.Logf("error: %v", err)
 		assert.ErrorContains(tt, err, "error parsing recipients")
 		assert.ErrorContains(tt, err, "mail: missing '@' or angle-addr")
 	})
 	t.Run("sendRawOK", func(tt *testing.T) {
-		err := client.SendRaw(tt.Context(), os.Getenv("SMTP_TO"), "Test email send via go-mcp-smtp", "Test email send via go-mcp-smtp")
+		err := client.SendRaw(tt.Context(), os.Getenv("SMTP_TO"),
+			"Test email send via go-mcp-smtp",
+			"Test email send via go-mcp-smtp",
+			"Content-Type: text/plain; charset=\"utf-8\"",
+		)
 		if err != nil {
 			tt.Errorf("error sending test email: %s", err)
 		}
