@@ -36,6 +36,7 @@ func (m *Mock) SendRaw(_ context.Context, tos []*mail.Address, body *bytes.Buffe
 	return m.SendRawError
 }
 
+// MakeBody renders simple email body
 func (m *Mock) MakeBody(tos []*mail.Address, subject, body string) *bytes.Buffer {
 	to := make([]string, len(tos))
 	for i := range tos {
