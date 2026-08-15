@@ -46,7 +46,6 @@ func (srv *MCP) SendMarkDownWithAttachmentsEmail(ctx context.Context, _ *mcp.Cal
 
 	writer := multipart.NewWriter(&buf)
 
-	buf.WriteString(fmt.Sprintf("Content-Type: multipart/alternative; boundary=%s\r\n\r\n", writer.Boundary()))
 	buf.WriteString(fmt.Sprintf("Date: %s\r\n", now.Format(time.RFC1123Z)))
 	buf.WriteString(fmt.Sprintf("From: %s\r\n", srv.From))
 	buf.WriteString(fmt.Sprintf("To: %s\r\n", input.Recipients))
@@ -54,6 +53,7 @@ func (srv *MCP) SendMarkDownWithAttachmentsEmail(ctx context.Context, _ *mcp.Cal
 	buf.WriteString(fmt.Sprintf("X-Mailer: github.com/vodolaz095/go-mcp-smtp\r\n"))
 	buf.WriteString(fmt.Sprintf("MIME-Version: 1.0\r\n"))
 	buf.WriteString(fmt.Sprintf("Message-Id: <%s@%s>\r\n", now.Format("20060102150405"), srv.Host))
+	buf.WriteString(fmt.Sprintf("Content-Type: multipart/mixed; boundary=%s\r\n", writer.Boundary()))
 	buf.WriteString(fmt.Sprintf("\r\n"))
 
 	textHeader := make(textproto.MIMEHeader)
