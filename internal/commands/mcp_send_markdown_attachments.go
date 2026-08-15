@@ -25,8 +25,8 @@ type SendMarkDownWithAttachmentsInput struct {
 	Attachments []string `json:"attachments" jsonschema:"list of absolute file paths to attachment files, can be empty"`
 }
 
-// SendMarkDownWithAttachments sends a multipart email message through the SMTP submission server with content rendered from markdown and optional attachments
-func (srv *MCP) SendMarkDownWithAttachments(ctx context.Context, _ *mcp.CallToolRequest, input SendMarkDownWithAttachmentsInput) (*mcp.CallToolResult, Output, error) {
+// SendMarkDownWithAttachmentsEmail sends a multipart email message through the SMTP submission server with content rendered from markdown and optional attachments
+func (srv *MCP) SendMarkDownWithAttachmentsEmail(ctx context.Context, _ *mcp.CallToolRequest, input SendMarkDownWithAttachmentsInput) (*mcp.CallToolResult, Output, error) {
 	var buf bytes.Buffer
 
 	plain := bytes.NewBufferString(input.Markdown)

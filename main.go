@@ -110,7 +110,7 @@ func main() {
 		Description: "send markdown email message with optional file attachments - agent should provide list of recipients " +
 			"(in RFC 5322 format like `John Doe <john.doe@example.org>, Jane Doe <jane.doe@example.org>`), " +
 			"subject, message body in Github Flavored Markdown syntax and optional array of file attachments as absolute file paths",
-	}, srv.SendMarkDownWithAttachments)
+	}, srv.SendMarkDownWithAttachmentsEmail)
 
 	if verbose {
 		log.Printf("Starting MCP...")
