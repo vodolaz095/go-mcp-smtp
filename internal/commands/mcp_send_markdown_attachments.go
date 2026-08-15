@@ -44,8 +44,10 @@ func (srv *MCP) SendMarkDownWithAttachmentsEmail(ctx context.Context, _ *mcp.Cal
 	plain := bytes.NewBufferString(input.Markdown)
 	rendered := mdToHTML(plain.Bytes())
 
+	// Create the outer multipart/mixed writer
 	writer := multipart.NewWriter(&buf)
 
+	// Write headers
 	buf.WriteString(fmt.Sprintf("Date: %s\r\n", now.Format(time.RFC1123Z)))
 	buf.WriteString(fmt.Sprintf("From: %s\r\n", srv.From))
 	buf.WriteString(fmt.Sprintf("To: %s\r\n", input.Recipients))
@@ -56,9 +58,20 @@ func (srv *MCP) SendMarkDownWithAttachmentsEmail(ctx context.Context, _ *mcp.Cal
 	buf.WriteString(fmt.Sprintf("Content-Type: multipart/mixed; boundary=%s\r\n", writer.Boundary()))
 	buf.WriteString(fmt.Sprintf("\r\n"))
 
+	// Create the multipart/alternative part for text and HTML
+	alternativeWriter := multipart.NewWriter(&buf)
+	alternativeHeader := make(textproto.MIMEHeader)
+	alternativeHeader.Set("Content-Type", fmt.Sprintf("multipart/alternative; boundary=%s", alternativeWriter.Boundary()))
+	alternativePart, err := writer.CreatePart(alternativeHeader)
+	if err != nil {
+		err = fmt.Errorf("error creating multipart/alternative part: %w", err)
+		return nil, Output{Message: err.Error()}, err
+	}
+
+	// Add text/plain part to the alternative container
 	textHeader := make(textproto.MIMEHeader)
 	textHeader.Set("Content-Type", "text/plain; charset=UTF-8")
-	textPart, err := writer.CreatePart(textHeader)
+	textPart, err := alternativeWriter.CreatePart(textHeader)
 	if err != nil {
 		err = fmt.Errorf("error creating plain text stream: %w", err)
 		return nil, Output{Message: err.Error()}, err
@@ -69,40 +82,59 @@ func (srv *MCP) SendMarkDownWithAttachmentsEmail(ctx context.Context, _ *mcp.Cal
 		return nil, Output{Message: err.Error()}, err
 	}
 
+	// Add text/html part to the alternative container
 	htmlHeader := make(textproto.MIMEHeader)
 	htmlHeader.Set("Content-Type", "text/html; charset=UTF-8")
-	htmlPart, err := writer.CreatePart(htmlHeader)
+	htmlPart, err := alternativeWriter.CreatePart(htmlHeader)
 	if err != nil {
 		err = fmt.Errorf("error creating html stream: %w", err)
 		return nil, Output{Message: err.Error()}, err
 	}
 	_, err = htmlPart.Write(rendered)
 	if err != nil {
-		err = fmt.Errorf("error writing plain text part: %w", err)
+		err = fmt.Errorf("error writing html part: %w", err)
 		return nil, Output{Message: err.Error()}, err
 	}
 
+	// Close the alternative writer and write it to the main buffer
+	err = alternativeWriter.Close()
+	if err != nil {
+		err = fmt.Errorf("error closing alternative writer: %w", err)
+		return nil, Output{Message: err.Error()}, err
+	}
+	_, err = alternativePart.Write(buf.Bytes()[buf.Len()-len(alternativeWriter.Boundary()):])
+	if err != nil {
+		err = fmt.Errorf("error writing alternative part: %w", err)
+		return nil, Output{Message: err.Error()}, err
+	}
+
+	// Add attachments to the outer multipart/mixed container
 	for i := range input.Attachments {
 		data, fileErr := os.OpenFile(input.Attachments[i], os.O_RDONLY, 0644)
 		if fileErr != nil {
 			fileErr = fmt.Errorf("error opening file: %w", fileErr)
+			data.Close()
 			return nil, Output{Message: fileErr.Error()}, fileErr
 		}
+
 		fileName := filepath.Base(input.Attachments[i])
 		attachmentHeader := make(textproto.MIMEHeader)
 		attachmentHeader.Set("Content-Type", fmt.Sprintf("application/octet-stream; name=%s", fileName))
 		attachmentHeader.Set("Content-Transfer-Encoding", "base64")
-		attachmentHeader.Set("Content-Disposition", fmt.Sprintf("filename=%s", fileName))
+		attachmentHeader.Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s", fileName))
 		attachmentPart, attachErr := writer.CreatePart(attachmentHeader)
 		if attachErr != nil {
 			attachErr = fmt.Errorf("error creating attachment stream: %w", attachErr)
+			data.Close()
 			return nil, Output{Message: attachErr.Error()}, attachErr
 		}
 		_, attachErr = io.Copy(base64.NewEncoder(base64.StdEncoding, attachmentPart), data)
 		if attachErr != nil {
 			attachErr = fmt.Errorf("error sending file to attachment stream: %w", attachErr)
+			data.Close()
 			return nil, Output{Message: attachErr.Error()}, attachErr
 		}
+		data.Close()
 	}
 
 	err = writer.Close()
