@@ -1,6 +1,6 @@
 module github.com/vodolaz095/go-mcp-smtp
 
-go 1.26.4
+go 1.26
 
 require (
 	github.com/gomarkdown/markdown v0.0.0-20260725000948-8435af3f5984
