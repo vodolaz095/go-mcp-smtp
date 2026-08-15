@@ -7,6 +7,8 @@ import (
 // MCP is the Model Context Protocol server for SMTP operations
 type MCP struct {
 	Sender sender.Interface
+	From   string
+	Host   string
 }
 
 // Output is the standard response format for MCP server operations

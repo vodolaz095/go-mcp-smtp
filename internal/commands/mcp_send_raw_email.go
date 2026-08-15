@@ -3,6 +3,7 @@ package commands
 import (
 	"context"
 	"fmt"
+	"net/mail"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
@@ -16,7 +17,17 @@ type SendRawInput struct {
 
 // SendRawEmail sends a raw email message through the SMTP submission server
 func (srv *MCP) SendRawEmail(ctx context.Context, _ *mcp.CallToolRequest, input SendRawInput) (*mcp.CallToolResult, Output, error) {
-	err := srv.Sender.SendRaw(ctx, input.Recipients, input.Subject, input.Body)
+	tos, err := mail.ParseAddressList(input.Recipients)
+	if err != nil {
+		err = fmt.Errorf("error parsing recipients %s : %w", input.Recipients, err)
+		return nil, Output{Message: err.Error()}, err
+	}
+	if len(tos) == 0 {
+		err = fmt.Errorf("empty list of recipients")
+		return nil, Output{Message: err.Error()}, err
+	}
+
+	err = srv.Sender.SendRaw(ctx, tos, srv.Sender.MakeBody(tos, input.Subject, input.Body))
 	if err != nil {
 		return nil, Output{Message: fmt.Sprintf("error sending message: %s", err)}, err
 	}

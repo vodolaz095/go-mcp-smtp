@@ -57,6 +57,36 @@ This document describes the MCP server agents provided by the `go-mcp-smtp` proj
 - Success: `{"message": "message is accepted by submission server"}`
 - Error: `{"message": "error sending message: <error details>"}`
 
+### SendMarkDownWithAttachmentsEmail
+
+**Purpose**: Send a markdown email message through the SMTP submission server with content rendered from markdown and optional attachments.
+
+**Input**:
+- `recipients`: List of recipients in RFC 5322 format like "John Doe <john.doe@example.com>"
+- `subject`: Subject of the email message (8bit ANSI encoding)
+- `markdown`: Message body in GitHub flavored markdown format
+- `attachments`: List of absolute file paths to attachment files (optional)
+
+**Output**:
+- `message`: Status message indicating message acceptance
+
+**Example Usage**:
+```json
+{
+  "tool": "sendMarkDownWithAttachmentsEmail",
+  "input": {
+    "recipients": "John Doe <john.doe@example.com>",
+    "subject": "Hello from Markdown",
+    "markdown": "**Hello World!**\n\nThis is a test of markdown rendering.",
+    "attachments": ["/path/to/file.pdf"]
+  }
+}
+```
+
+**Possible Responses**:
+- Success: `{"message": "message is accepted by submission server"}`
+- Error: `{"message": "error sending message: <error details>"}`
+
 ## Configuration
 
 The MCP server requires configuration via command-line arguments when starting:

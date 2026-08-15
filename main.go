@@ -66,7 +66,11 @@ func main() {
 	if verbose {
 		log.Printf("SMTP server %s is cooperating...", address)
 	}
-	srv := commands.MCP{Sender: &transport}
+	srv := commands.MCP{
+		Sender: &transport,
+		From:   from,
+		Host:   host,
+	}
 
 	server := mcp.NewServer(&mcp.Implementation{Name: "go-mcp-smtp",
 		Title:       "go-mcp-smtp",
@@ -95,14 +99,23 @@ func main() {
 
 	mcp.AddTool(server, &mcp.Tool{
 		Name:        "sendRawEmail",
-		Title:       "send raw email message - agent should provide list of recipients (in RFC 5322 format like `John Doe <john.doe@example.org>, Jane Doe <jane.doe@example.org>`), subject and raw message text",
-		Description: "send raw email message",
+		Title:       "send raw email message",
+		Description: "send raw email message - agent should provide list of recipients (in RFC 5322 format like `John Doe <john.doe@example.org>, Jane Doe <jane.doe@example.org>`), subject and raw message text",
 	}, srv.SendRawEmail)
 	mcp.AddTool(server, &mcp.Tool{
 		Name:        "ping",
 		Title:       "ping SMTP Submission server to ensure it works with parameters provided",
 		Description: "ensure smtp submission server is functional",
 	}, srv.Ping)
+
+	mcp.AddTool(server, &mcp.Tool{
+		Name:  "sendMarkDownWithAttachmentsEmail",
+		Title: "send email message with content rendered from markdown input and optional file attachments",
+		Description: "send markdown email message with optional file attachments - agent should provide list of recipients " +
+			"(in RFC 5322 format like `John Doe <john.doe@example.org>, Jane Doe <jane.doe@example.org>`), " +
+			"subject, message body in Github Flavored Markdown syntax and optional array of file attachments as absolute file paths",
+	}, srv.SendMarkDownWithAttachmentsEmail)
+
 	if verbose {
 		log.Printf("Starting MCP...")
 	}
