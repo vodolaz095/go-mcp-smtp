@@ -57,7 +57,7 @@ This document describes the MCP server agents provided by the `go-mcp-smtp` proj
 - Success: `{"message": "message is accepted by submission server"}`
 - Error: `{"message": "error sending message: <error details>"}`
 
-### SendMarkDownWithAttachments
+### SendMarkDownWithAttachmentsEmail
 
 **Purpose**: Send a markdown email message through the SMTP submission server with content rendered from markdown and optional attachments.
 
@@ -73,7 +73,7 @@ This document describes the MCP server agents provided by the `go-mcp-smtp` proj
 **Example Usage**:
 ```json
 {
-  "tool": "sendMarkDownWithAttachments",
+  "tool": "sendMarkDownWithAttachmentsEmail",
   "input": {
     "recipients": "John Doe <john.doe@example.com>",
     "subject": "Hello from Markdown",
